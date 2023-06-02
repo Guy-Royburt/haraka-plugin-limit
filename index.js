@@ -105,4 +105,5 @@ exports.max_unrecognized_commands = function (next, connection, cmd) {
   const max = parseFloat(this.cfg.unrecognized_commands.max);
   if (!max || isNaN(max)) return next();
 
-  const uc = connection.results.get(this).un
+  const uc = connection.results.get(this).un; // Complete the line with the necessary code
+
