@@ -98,12 +98,15 @@ exports.shutdown = function () {
 };
 
 exports.max_unrecognized_commands = function (next, connection, cmd) {
-  if (!this.cfg.unrecognized_commands) return next();
-
-  connection.results.push(this, { unrec_cmds: cmd, emit: true });
-
-  const max = parseFloat(this.cfg.unrecognized_commands.max);
-  if (!max || isNaN(max)) return next();
-
-  const uc = connection.results.get(this).un; // Complete the line with the necessary code
-
+    if (!this.cfg.unrecognized_commands) return next();
+  
+    connection.results.push(this, { unrec_cmds: cmd, emit: true });
+  
+    const max = parseFloat(this.cfg.unrecognized_commands.max);
+    if (!max || isNaN(max)) return next();
+  
+    const uc = connection.results.get(this).un; // Complete the line with the necessary code
+  
+    next();
+  };
+  
