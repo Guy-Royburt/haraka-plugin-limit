@@ -398,35 +398,33 @@ function getLimit (value) {
 }
 
 exports.rate_limit = async function (connection, key, value) {
-
-    if (value === 0) {     // Limit disabled for this host
-        connection.loginfo(this, `rate limit disabled for: ${key}`);
-        return false
+    if (value === 0) { // Limit disabled for this host
+      connection.loginfo(this, `rate limit disabled for: ${key}`);
+      return false;
     }
-
-    // CAUTION: !value would match that 0 value -^
-    if (!key || !value) return
-    if (!this.db) return
-
+  
+    if (!key || !value) return;
+    if (!this.db) return;
+  
     const limit = getLimit(value);
     const ttl = getTTL(value);
-
-    if (!limit || ! ttl) {
-        connection.results.add(this, { err: `syntax error: key=${key} value=${value}` });
-        return
+  
+    if (isNaN(limit) || isNaN(ttl)) {
+      connection.results.add(this, { err: `syntax error: key=${key} value=${value}` });
+      return;
     }
-
+  
     connection.logdebug(this, `key=${key} limit=${limit} ttl=${ttl}`);
-
+  
     try {
-        const newval = await this.db.incr(key)
-        if (newval === 1) this.db.expire(key, ttl);
-        return parseInt(newval, 10) > limit // boolean
+      const newval = await this.db.incr(key);
+      if (newval === 1) await this.db.expire(key, ttl);
+      return parseInt(newval, 10) > limit; // boolean
+    } catch (err) {
+      connection.results.add(this, { err: `${key}:${err}` });
     }
-    catch (err) {
-        connection.results.add(this, { err: `${key}:${err}` });
-    }
-}
+  }
+  
 
 exports.rate_rcpt_host_incr = async function (next, connection) {
     if (!this.db) return next();
